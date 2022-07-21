@@ -1,0 +1,11 @@
+GET http://localhost:5000/books
+Authorization: Beaer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imhhd2siLCJpYXQiOjE2NTgxNTcyNDMsImV4cCI6MTY1ODE1NzI3M30.tbLQpWaZrnH9h_FRPzI7eNQO_wPzGi4D0IGBCqIwuk4
+
+###
+
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "username": "hawk"
+}
