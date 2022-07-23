@@ -4,6 +4,7 @@ const route = express.Router()
 
 const authController = require('../controllers/auth.controller')
 
-route.get('/register', authController.register)    // todo controller in here ...
+route.post('/register', authController.register)
+route.post('/login', authController.login)
 
 module.exports = route

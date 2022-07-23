@@ -1,7 +1,7 @@
 const authRoute = require('./auth.routes')
 
 function route(app) {
-    app.use('/', authRoute)
+    app.use('/v1/auth', authRoute)
 
     app.get('/', (req, res) => {
         res.send('hello standard lord.')
