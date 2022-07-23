@@ -1,6 +1,7 @@
 const User = require('../models/user.model')
 const Role = require('../models/role.model')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 class AuthController {
     async register(req, res) {
@@ -37,7 +38,11 @@ class AuthController {
             }
 
             if (user && validPassword) {
-                res.status(200).json(user)
+                const accessToken = jwt.sign({
+                    id: user.id,
+                    role: user.roles
+                }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' })
+                res.status(200).json({ accessToken })
             }
 
         } catch (error) {
