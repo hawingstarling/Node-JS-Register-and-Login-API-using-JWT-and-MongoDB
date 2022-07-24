@@ -23,6 +23,20 @@ class AuthController {
         }
     }
 
+    generateAT (user) {
+        return jwt.sign({
+            id: user.id,
+            role: user.roles
+        }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' })
+    }
+
+    generateRT (user) {
+        return jwt.sign({
+            id: user.id,
+            role: user.roles
+        }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '1d' })
+    }
+
     async login(req, res) {
         try {
             const user = await User.findOne({ username: req.body.username })
@@ -38,16 +52,47 @@ class AuthController {
             }
 
             if (user && validPassword) {
-                const accessToken = jwt.sign({
-                    id: user.id,
-                    role: user.roles
-                }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' })
-                res.status(200).json({ accessToken })
+                const accessToken = AuthController.generateAT(user)
+
+                const refreshToken = AuthController.generateRT(user)
+
+                res.cookie('refreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: false,
+                    path: '/',
+                    sameSite: 'strict'
+                })
+
+                res.status(200).json({ accessToken, refreshToken })
             }
 
         } catch (error) {
             res.status(500).json(error)
         }
+    }
+
+    async refesh (req, res) {
+        // request refreshToken
+        const refreshToken = req.cookie.refreshToken
+        if (!refreshToken) return res.status(401).json('You\'re not authentication.')
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
+            if (error) {
+                console.log(error);
+            }
+            
+            const newAccessToken = AuthController.generateAT(user)
+            const newRefreshToken = AuthController.generateRT(user)
+
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                secure: false,
+                path: '/',
+                sameSite: 'strict'
+            })
+
+            res.status(200).json({ accessToken: newAccessToken })
+
+        })
     }
 
 }
